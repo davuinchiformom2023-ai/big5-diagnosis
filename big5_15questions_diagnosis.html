@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ビッグファイブ診断（15問）</title>
+    <style>
+        body { font-family: sans-serif; margin: 40px; }
+        .question-block { margin-bottom: 20px; }
+        .question { margin-bottom: 5px; }
+        button { padding: 10px 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>ビッグファイブ診断（15問）</h1>
+    <form id="quiz-form">
+        <div id="question-list"></div>
+        <button type="button" onclick="submitQuiz()">診断する</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        const questions = [
+            { text: "周りから頼りにされることが多い", trait: "c", direction: 1 },
+            { text: "つい不安になりやすい", trait: "n", direction: 1 },
+            { text: "新しいことにワクワクする", trait: "o", direction: 1 },
+            { text: "人の輪に入るのが好き", trait: "e", direction: 1 },
+            { text: "相手の気持ちに気づくほうだ", trait: "a", direction: 1 },
+            { text: "計画を立てるのが苦手だ", trait: "c", direction: -1 },
+            { text: "気がつくとイライラしている", trait: "n", direction: -1 },
+            { text: "自分のやり方にこだわる方だ", trait: "o", direction: -1 },
+            { text: "初対面の人とは口数が少なくなる", trait: "e", direction: -1 },
+            { text: "はっきり物を言うほうだ", trait: "a", direction: -1 },
+            { text: "先生に質問されても黙ってしまうことがある", trait: "dummy", direction: 0 },
+            { text: "好きなことは、途中でやめられない", trait: "dummy", direction: 0 },
+            { text: "自分が泣いている姿はあまり見せたくない", trait: "dummy", direction: 0 },
+            { text: "物事をじっくり考えるタイプだ", trait: "o", direction: 1 },
+            { text: "たとえ自分に自信がなくても、なんとかやってみる", trait: "c", direction: 1 }
+        ];
+
+        // シャッフル
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        shuffle(questions);
+
+        // 表示
+        const listDiv = document.getElementById("question-list");
+        questions.forEach((q, index) => {
+            const block = document.createElement("div");
+            block.className = "question-block";
+            block.innerHTML = `
+                <div class="question">Q${index + 1}. ${q.text}</div>
+                <label><input type="radio" name="q${index}" value="1"> はい</label>
+                <label><input type="radio" name="q${index}" value="0"> いいえ</label>
+            `;
+            listDiv.appendChild(block);
+        });
+
+        function submitQuiz() {
+            const scores = { c: 0, a: 0, o: 0, e: 0, n: 0 };
+            let answered = 0;
+            questions.forEach((q, i) => {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                if (selected && q.trait !== "dummy") {
+                    scores[q.trait] += q.direction * Number(selected.value);
+                    answered++;
+                }
+            });
+            if (answered < 12) {
+                alert("すべての質問に答えてください。");
+                return;
+            }
+            let output = "<h2>診断結果</h2><ul>";
+            for (let key in scores) {
+                output += `<li>${key.toUpperCase()}：${scores[key]}点</li>`;
+            }
+            output += "</ul>";
+            document.getElementById("result").innerHTML = output;
+        }
+    </script>
+</body>
+</html>
